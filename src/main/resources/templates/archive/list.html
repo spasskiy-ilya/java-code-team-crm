@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Архив</title>
+    <style th:replace="~{fragments/sidebar::sidebar-styles}"></style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .main-content {
+            margin-left: 280px !important;
+            min-height: 100vh;
+            padding: 40px;
+            display: block !important;
+            align-items: stretch !important;
+            justify-content: flex-start !important;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .table-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e5e5;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f8f8;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            color: #1a1a1a;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            font-size: 15px;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .info-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-name {
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .info-name-link {
+            font-weight: 500;
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+
+        .info-name-link:hover {
+            color: #0088cc;
+            text-decoration: underline;
+        }
+
+        .info-details {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .telegram-link {
+            color: #0088cc;
+            text-decoration: none;
+        }
+
+        .telegram-link:hover {
+            text-decoration: underline;
+        }
+
+        select {
+            padding: 8px 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+            color: #1a1a1a;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #0088cc;
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
+        }
+
+        select:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+            color: #999;
+        }
+
+        .archive-date-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .archive-date {
+            color: #666;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar::sidebar('archive')}"></div>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Архив</h1>
+            <p class="subtitle">Архивированные студенты</p>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Контакты</th>
+                        <th>Селектор</th>
+                        <th>Дата архивации и селектор</th>
+                        <th>Причина переноса в архив</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${agents.isEmpty()}">
+                        <td colspan="4" style="text-align: center; color: #999; padding: 40px;">
+                            Нет архивированных студентов
+                        </td>
+                    </tr>
+                    <tr th:each="agent : ${agents}">
+                        <td>
+                            <div class="info-cell">
+                                <a th:href="@{/students/{id}(id=${agent.agentId})}" class="info-name-link">
+                                    <span class="info-name" th:text="${agent.fullName}">ФИО</span>
+                                </a>
+                                <span class="info-details" th:text="${agent.login}">Логин</span>
+                                <span class="info-details" th:if="${agent.telegram}">
+                                    <a th:href="@{'https://t.me/' + ${agent.telegram}}" target="_blank" class="telegram-link">
+                                        <span th:text="'@' + ${agent.telegram}">ТГ</span>
+                                    </a>
+                                </span>
+                                <span class="info-details" th:unless="${agent.telegram}">-</span>
+                            </div>
+                        </td>
+                        <td>
+                            <select th:id="'stage-' + ${agent.agentId}"
+                                    th:data-agent-id="${agent.agentId}"
+                                    onchange="updateStatus(this)">
+                                <option value="">-</option>
+                                <option th:each="stage : ${stages}"
+                                        th:value="${stage.name()}"
+                                        th:text="${stage.getTitle()}"
+                                        th:selected="${stage.name() == agent.currentStage}">Этап</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="archive-date-cell">
+                                <span class="archive-date" th:text="${agent.archiveDate != null ? #temporals.format(agent.archiveDate, 'dd.MM.yy') : '-'}">-</span>
+                                <select th:id="'archive-stage-' + ${agent.agentId}"
+                                        th:data-agent-id="${agent.agentId}"
+                                        onchange="updateStatus(this)">
+                                    <option value="">-</option>
+                                    <option th:each="stage : ${stages}"
+                                            th:value="${stage.name()}"
+                                            th:text="${stage.name()}"
+                                            th:selected="${stage.name() == agent.currentStage}">Этап</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <span th:text="${agent.reason != null && !agent.reason.isEmpty() ? agent.reason : '-'}">-</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        function updateStatus(selectElement) {
+            const agentId = selectElement.dataset.agentId;
+            const stage = selectElement.value;
+
+            if (!stage) {
+                return;
+            }
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = /*[[@{/archive/status}]]*/ '/archive/status';
+
+            const agentIdInput = document.createElement('input');
+            agentIdInput.type = 'hidden';
+            agentIdInput.name = 'agentId';
+            agentIdInput.value = agentId;
+            form.appendChild(agentIdInput);
+
+            const stageInput = document.createElement('input');
+            stageInput.type = 'hidden';
+            stageInput.name = 'stage';
+            stageInput.value = stage;
+            form.appendChild(stageInput);
+
+            const subStageInput = document.createElement('input');
+            subStageInput.type = 'hidden';
+            subStageInput.name = 'subStage';
+            subStageInput.value = '';
+            form.appendChild(subStageInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+</html>
