@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily - Первая часть обучения</title>
+    <style th:replace="~{fragments/sidebar::sidebar-styles}"></style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .main-content {
+            margin-left: 280px !important;
+            min-height: 100vh;
+            padding: 40px;
+            display: block !important;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .table-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e5e5;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+
+        thead {
+            background: #f8f8f8;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        th {
+            padding: 16px 12px;
+            text-align: left;
+            color: #1a1a1a;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+            background: #f8f8f8;
+            z-index: 10;
+        }
+
+        th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            background: #f8f8f8;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            font-size: 14px;
+            vertical-align: top;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        td:first-child {
+            position: sticky;
+            left: 0;
+            background: #fff;
+            z-index: 5;
+        }
+
+        tbody tr:hover td:first-child {
+            background: #fafafa;
+        }
+
+        .info-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 180px;
+        }
+
+        .info-name {
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .info-name-link {
+            font-weight: 500;
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .info-name-link:hover {
+            color: #0088cc;
+            text-decoration: underline;
+        }
+
+        .info-details {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .telegram-link {
+            color: #0088cc;
+            text-decoration: none;
+        }
+
+        .telegram-link:hover {
+            text-decoration: underline;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #fff;
+            color: #1a1a1a;
+            cursor: pointer;
+            min-width: 140px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        select:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .note-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+            min-height: 60px;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        .note-input:focus {
+            outline: none;
+            border-color: #0088cc;
+            box-shadow: 0 0 0 2px rgba(0, 136, 204, 0.1);
+        }
+
+        .date-header {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .note-cell {
+            min-width: 150px;
+        }
+
+        .save-all-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .save-all-btn {
+            padding: 14px 28px;
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .save-all-btn:hover {
+            background: #333;
+        }
+
+        .week-nav-btn {
+            padding: 10px 20px;
+            background: #1a1a1a;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+            display: inline-block;
+        }
+
+        .week-nav-btn:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar::sidebar('daily')}"></div>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h1 style="margin: 0;">Daily - Первая часть обучения</h1>
+                <div style="display: flex; gap: 12px;">
+                    <a th:href="@{/daily/{type}(type=${type}, weekOffset=${weekOffset - 1})}" class="week-nav-btn">
+                        ← Назад
+                    </a>
+                    <a th:href="@{/daily/{type}(type=${type}, weekOffset=${weekOffset + 1})}" class="week-nav-btn">
+                        Вперед →
+                    </a>
+                </div>
+            </div>
+            <p class="subtitle" th:text="${title}">Первая часть обучения</p>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ИНФО</th>
+                        <th>Этап</th>
+                        <th>Дней</th>
+                        <th>Тема</th>
+                        <th>Дней</th>
+                        <th th:each="date, iterStat : ${weekDates}">
+                            <div class="date-header" th:text="${#temporals.format(date, 'dd.MM.yy')}"></div>
+                            <div th:text="${dayNames[iterStat.index]}"></div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${agents.isEmpty()}">
+                        <td colspan="10" style="text-align: center; color: #999; padding: 40px;">
+                            Нет студентов на первой части обучения
+                        </td>
+                    </tr>
+                    <tr th:each="agent : ${agents}">
+                        <td>
+                            <div class="info-cell">
+                                <a th:href="@{/students/{id}(id=${agent.agentId})}" class="info-name-link" th:text="${agent.fullName}">ФИО</a>
+                                <span class="info-details" th:text="${agent.login}">Логин</span>
+                                <span class="info-details" th:if="${agent.telegram}">
+                                    <a th:href="'https://t.me/' + ${agent.telegram}" 
+                                       target="_blank" 
+                                       class="telegram-link"
+                                       th:text="'@' + ${agent.telegram}">@telegram</a>
+                                </span>
+                                <span class="info-details" th:unless="${agent.telegram}" th:text="'-'"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <select th:id="'stage-' + ${agent.agentId}" 
+                                    th:data-agent-id="${agent.agentId}"
+                                    th:data-sub-stage-id="'subStage-' + ${agent.agentId}"
+                                    onchange="updateStatus(this)">
+                                <option value="">-</option>
+                                <option th:each="stage : ${stages}" 
+                                        th:value="${stage.name()}" 
+                                        th:text="${stage.getTitle()}"
+                                        th:selected="${agent.currentStage == stage.name()}"></option>
+                            </select>
+                        </td>
+                        <td>
+                            <span th:text="${agent.stageDuration} + ' дн.'">0 дн.</span>
+                        </td>
+                        <td>
+                            <select th:id="'subStage-' + ${agent.agentId}" 
+                                    th:data-agent-id="${agent.agentId}"
+                                    th:data-stage-id="'stage-' + ${agent.agentId}"
+                                    th:data-current-sub-stage="${agent.currentSubStage ?: ''}"
+                                    onchange="updateStatus(this)"
+                                    th:disabled="${agent.currentStage == null}">
+                                <option value="">-</option>
+                                <th:block th:if="${agent.currentStage != null}">
+                                    <option th:each="subStage : ${T(jc.team.crm.utils.StageUtils).getSubStages(agent.currentStage)}"
+                                            th:value="${subStage}"
+                                            th:text="${T(jc.team.crm.utils.StageUtils).getSubStageTitle(subStage)}"
+                                            th:selected="${agent.currentSubStage == subStage}">
+                                    </option>
+                                </th:block>
+                            </select>
+                        </td>
+                        <td>
+                            <span th:text="${agent.subStageDuration} + ' дн.'">0 дн.</span>
+                        </td>
+                        <td th:each="date, iterStat : ${weekDates}" class="note-cell">
+                            <textarea th:id="'note-' + ${agent.agentId} + '-' + ${iterStat.index}"
+                                      th:data-agent-id="${agent.agentId}"
+                                      th:data-date="${date}"
+                                      class="note-input"
+                                      th:text="${agent.dailyNotes != null ? agent.dailyNotes.get(date.toString()) : ''}"
+                                      placeholder="Заметка..."></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="save-all-container">
+            <button type="button" class="save-all-btn" onclick="saveAllNotesForAll()">
+                Сохранить все
+            </button>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        const dailyType = /*[[${type}]]*/ 'first';
+        const subStagesMap = {
+            'FIRST_PART_EDUCATION': ['JAVA_CORE', 'COLLECTION'],
+            'SIGN': ['WAITING'],
+            'SECOND_PART_EDUCATION': ['KAFKA', 'DB', 'SYSTEM_DESIGN'],
+            'CV': ['CV', 'LEGEND'],
+            'PRACTICE': ['SQL', 'REVIEW'],
+            'SEARCH': ['SEARCH', 'STOP_SEARCH', 'RESEARCH'],
+            'WORK': [],
+            'DONE': ['DONE'],
+            'ARCHIVE': ['ARCHIVE']
+        };
+
+        function initSubStages() {
+            document.querySelectorAll('[id^="stage-"]').forEach(stageSelect => {
+                const agentId = stageSelect.dataset.agentId;
+                const subStageSelect = document.getElementById('subStage-' + agentId);
+                if (!subStageSelect) return;
+                
+                // Получаем currentStage из value
+                const currentStage = stageSelect.value;
+                
+                // Если stage выбран и есть subStages для него
+                if (currentStage && subStagesMap[currentStage] && subStagesMap[currentStage].length > 0) {
+                    subStageSelect.disabled = false;
+                } else {
+                    subStageSelect.disabled = true;
+                }
+            });
+        }
+        
+        // Функция для обновления subStage при изменении stage
+        function updateSubStagesForStage(stageSelect) {
+            const agentId = stageSelect.dataset.agentId;
+            const subStageSelect = document.getElementById('subStage-' + agentId);
+            if (!subStageSelect) return;
+            
+            const selectedStage = stageSelect.value;
+            
+            if (selectedStage && subStagesMap[selectedStage] && subStagesMap[selectedStage].length > 0) {
+                subStageSelect.disabled = false;
+                subStageSelect.innerHTML = '<option value="">-</option>';
+                subStagesMap[selectedStage].forEach(subStage => {
+                    const option = document.createElement('option');
+                    option.value = subStage;
+                    option.textContent = subStageTitles[subStage] || subStage;
+                    subStageSelect.appendChild(option);
+                });
+            } else {
+                subStageSelect.disabled = true;
+                subStageSelect.innerHTML = '<option value="">-</option>';
+            }
+        }
+
+        function updateStatus(selectElement) {
+            const agentId = selectElement.dataset.agentId;
+            let stageSelect, subStageSelect;
+            
+            if (selectElement.id.startsWith('stage-')) {
+                stageSelect = selectElement;
+                updateSubStagesForStage(stageSelect);
+                subStageSelect = document.getElementById('subStage-' + agentId);
+            } else {
+                subStageSelect = selectElement;
+                stageSelect = document.getElementById('stage-' + agentId);
+            }
+            
+            const stage = stageSelect.value || '';
+            const subStage = subStageSelect.value || '';
+            
+            if (!stage && !subStage) {
+                return;
+            }
+            
+            const weekOffset = /*[[${weekOffset}]]*/ 0;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/daily/' + dailyType + '/status';
+            
+            const agentIdInput = document.createElement('input');
+            agentIdInput.type = 'hidden';
+            agentIdInput.name = 'agentId';
+            agentIdInput.value = agentId;
+            form.appendChild(agentIdInput);
+            
+            const stageInput = document.createElement('input');
+            stageInput.type = 'hidden';
+            stageInput.name = 'stage';
+            stageInput.value = stage;
+            form.appendChild(stageInput);
+            
+            const subStageInput = document.createElement('input');
+            subStageInput.type = 'hidden';
+            subStageInput.name = 'subStage';
+            subStageInput.value = subStage;
+            form.appendChild(subStageInput);
+            
+            const weekOffsetInput = document.createElement('input');
+            weekOffsetInput.type = 'hidden';
+            weekOffsetInput.name = 'weekOffset';
+            weekOffsetInput.value = weekOffset;
+            form.appendChild(weekOffsetInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function saveAllNotesForAll() {
+            // Получаем все textarea на странице
+            const allTextareas = document.querySelectorAll('textarea[data-agent-id]');
+            
+            if (allTextareas.length === 0) {
+                return;
+            }
+            
+            const weekOffset = /*[[${weekOffset}]]*/ 0;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/daily/' + dailyType + '/notes';
+            
+            // Добавляем все заметки как массивы параметров
+            allTextareas.forEach(textarea => {
+                const agentIdInput = document.createElement('input');
+                agentIdInput.type = 'hidden';
+                agentIdInput.name = 'agentIds';
+                agentIdInput.value = textarea.dataset.agentId;
+                form.appendChild(agentIdInput);
+                
+                const dateInput = document.createElement('input');
+                dateInput.type = 'hidden';
+                dateInput.name = 'dates';
+                dateInput.value = textarea.dataset.date;
+                form.appendChild(dateInput);
+                
+                const noteInput = document.createElement('input');
+                noteInput.type = 'hidden';
+                noteInput.name = 'notes';
+                noteInput.value = textarea.value || '';
+                form.appendChild(noteInput);
+            });
+            
+            const weekOffsetInput = document.createElement('input');
+            weekOffsetInput.type = 'hidden';
+            weekOffsetInput.name = 'weekOffset';
+            weekOffsetInput.value = weekOffset;
+            form.appendChild(weekOffsetInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Инициализация при загрузке страницы
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initSubStages, 50);
+            });
+        } else {
+            setTimeout(initSubStages, 50);
+        }
+        
+        // Также вызываем после небольшой задержки на случай, если Thymeleaf еще не полностью обработал атрибуты
+        setTimeout(function() {
+            initSubStages();
+        }, 200);
+    </script>
+</body>
+</html>

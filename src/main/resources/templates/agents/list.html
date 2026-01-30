@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список студентов</title>
+    <style th:replace="~{fragments/sidebar::sidebar-styles}"></style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .main-content {
+            margin-left: 280px !important;
+            min-height: 100vh;
+            padding: 40px;
+            display: block !important;
+            align-items: stretch !important;
+            justify-content: flex-start !important;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .table-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e5e5;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f8f8;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            color: #1a1a1a;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            font-size: 15px;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .info-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-name {
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .info-name-link {
+            font-weight: 500;
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .info-name-link:hover {
+            color: #0088cc;
+            text-decoration: underline;
+        }
+
+        .info-details {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .telegram-link {
+            color: #0088cc;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .telegram-link:hover {
+            color: #005580;
+            text-decoration: underline;
+        }
+
+        .duration {
+            color: #666;
+            font-size: 14px;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        select:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 240px;
+                padding: 20px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar::sidebar('education')}"></div>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Список студентов</h1>
+            <p class="subtitle">На обучение</p>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Контакты</th>
+                        <th>Дата регистрации</th>
+                        <th>Дата договора</th>
+                        <th>Этап</th>
+                        <th>Продолжительность</th>
+                        <th>Тема</th>
+                        <th>Продолжительность</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${agents.isEmpty()}">
+                        <td colspan="7" style="text-align: center; color: #999; padding: 40px;">
+                            Нет активных студентов
+                        </td>
+                    </tr>
+                    <tr th:each="agent : ${agents}">
+                        <td>
+                            <div class="info-cell">
+                                <a th:href="@{/students/{id}(id=${agent.agentId})}" class="info-name-link" th:text="${agent.fullName}">ФИО</a>
+                                <span class="info-details" th:text="${agent.login}">Логин</span>
+                                <span class="info-details" th:if="${agent.telegram}">
+                                    <a th:href="'https://t.me/' + ${agent.telegram}" 
+                                       target="_blank" 
+                                       class="telegram-link"
+                                       th:text="'@' + ${agent.telegram}">@telegram</a>
+                                </span>
+                                <span class="info-details" th:unless="${agent.telegram}" th:text="'-'"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <span th:text="${agent.registrationDate != null ? #temporals.format(agent.registrationDate, 'dd.MM.yy') : '-'}">-</span>
+                        </td>
+                        <td>
+                            <span th:text="${agent.contractSignDate != null ? #temporals.format(agent.contractSignDate, 'dd.MM.yy') : '-'}">-</span>
+                        </td>
+                        <td>
+                            <select th:id="'stage-' + ${agent.agentId}" 
+                                    th:data-agent-id="${agent.agentId}"
+                                    th:data-sub-stage-id="'subStage-' + ${agent.agentId}"
+                                    onchange="updateStatus(this)">
+                                <option value="">-</option>
+                                <option th:each="stage : ${stages}" 
+                                        th:value="${stage.name()}" 
+                                        th:text="${stage.getTitle()}"
+                                        th:selected="${agent.currentStage == stage.name()}"></option>
+                            </select>
+                        </td>
+                        <td>
+                            <span class="duration" th:text="${agent.stageDuration} + ' дн.'">0 дн.</span>
+                        </td>
+                        <td>
+                            <select th:id="'subStage-' + ${agent.agentId}" 
+                                    th:data-agent-id="${agent.agentId}"
+                                    th:data-stage-id="'stage-' + ${agent.agentId}"
+                                    th:data-current-sub-stage="${agent.currentSubStage ?: ''}"
+                                    onchange="updateStatus(this)"
+                                    disabled>
+                                <option value="">-</option>
+                            </select>
+                        </td>
+                        <td>
+                            <span class="duration" th:text="${agent.subStageDuration} + ' дн.'">0 дн.</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        const subStagesMap = {
+            'FIRST_PART_EDUCATION': ['JAVA_CORE', 'COLLECTION', 'CONCURRENCY', 'STREAM', 'MAVEN', 'SPRING_CORE', 'SPRING_MVC', 'SPRING_DATA', 'SPRING_BOOT', 'SPRING_SECURITY'],
+            'SIGN': ['WAITING'],
+            'SECOND_PART_EDUCATION': ['KAFKA', 'DB', 'SYSTEM_DESIGN'],
+            'CV': ['CV', 'LEGEND'],
+            'PRACTICE': ['STREAM', 'SQL', 'REVIEW'],
+            'SEARCH': ['SEARCH', 'STOP_SEARCH', 'RESEARCH'],
+            'WORK': ['ON_PROJECT'],
+            'DONE': ['DONE'],
+            'ARCHIVE': ['ARCHIVE']
+        };
+        
+        const subStageTitles = {
+            // FIRST_PART_EDUCATION
+            'JAVA_CORE': 'Java Core',
+            'COLLECTION': 'Коллекции',
+            'CONCURRENCY': 'Многопоточность',
+            'STREAM': 'Стримы',
+            'MAVEN': 'Maven',
+            'SPRING_CORE': 'Spring core',
+            'SPRING_MVC': 'Spring mvc',
+            'SPRING_DATA': 'Spring data',
+            'SPRING_BOOT': 'Spring boot',
+            'SPRING_SECURITY': 'Spring security',
+            // SIGN
+            'WAITING': 'Ожидание',
+            // SECOND_PART_EDUCATION
+            'KAFKA': 'Kafka',
+            'DB': 'База данных',
+            'SYSTEM_DESIGN': 'Архитектура систем',
+            // CV
+            'CV': 'Резюме',
+            'LEGEND': 'Легенда',
+            // PRACTICE
+            'SQL': 'SQL',
+            'REVIEW': 'Code Review',
+            // SEARCH
+            'SEARCH': 'Поиск',
+            'STOP_SEARCH': 'Приостановлен поиск',
+            'RESEARCH': 'Исследование',
+            // WORK
+            'ON_PROJECT': 'На проекте',
+            // DONE
+            'DONE': 'Завершено',
+            // ARCHIVE
+            'ARCHIVE': 'Архив'
+        };
+
+        function initSubStages() {
+            document.querySelectorAll('[id^="stage-"]').forEach(stageSelect => {
+                const agentId = stageSelect.dataset.agentId;
+                const subStageSelect = document.getElementById('subStage-' + agentId);
+                const currentStage = stageSelect.value;
+                
+                if (currentStage && subStagesMap[currentStage]) {
+                    subStageSelect.disabled = false;
+                    subStageSelect.innerHTML = '<option value="">-</option>';
+                    subStagesMap[currentStage].forEach(subStage => {
+                        const option = document.createElement('option');
+                        option.value = subStage;
+                        option.textContent = subStageTitles[subStage] || subStage;
+                        subStageSelect.appendChild(option);
+                    });
+                    
+                    const currentSubStage = subStageSelect.dataset.currentSubStage;
+                    if (currentSubStage) {
+                        subStageSelect.value = currentSubStage;
+                    }
+                } else {
+                    subStageSelect.disabled = true;
+                    subStageSelect.innerHTML = '<option value="">-</option>';
+                }
+            });
+        }
+
+        function updateStatus(selectElement) {
+            const agentId = selectElement.dataset.agentId;
+            let stageSelect, subStageSelect;
+            
+            if (selectElement.id.startsWith('stage-')) {
+                stageSelect = selectElement;
+                subStageSelect = document.getElementById('subStage-' + agentId);
+                
+                const selectedStage = stageSelect.value;
+                if (selectedStage && subStagesMap[selectedStage]) {
+                    subStageSelect.disabled = false;
+                    subStageSelect.innerHTML = '<option value="">-</option>';
+                    subStagesMap[selectedStage].forEach(subStage => {
+                        const option = document.createElement('option');
+                        option.value = subStage;
+                        option.textContent = subStage;
+                        subStageSelect.appendChild(option);
+                    });
+                } else {
+                    subStageSelect.disabled = true;
+                    subStageSelect.innerHTML = '<option value="">-</option>';
+                }
+            } else {
+                subStageSelect = selectElement;
+                stageSelect = document.getElementById('stage-' + agentId);
+            }
+            
+            const stage = stageSelect.value || '';
+            const subStage = subStageSelect.value || '';
+            
+            if (!stage && !subStage) {
+                return;
+            }
+            
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/education/status';
+            
+            const agentIdInput = document.createElement('input');
+            agentIdInput.type = 'hidden';
+            agentIdInput.name = 'agentId';
+            agentIdInput.value = agentId;
+            form.appendChild(agentIdInput);
+            
+            const stageInput = document.createElement('input');
+            stageInput.type = 'hidden';
+            stageInput.name = 'stage';
+            stageInput.value = stage;
+            form.appendChild(stageInput);
+            
+            const subStageInput = document.createElement('input');
+            subStageInput.type = 'hidden';
+            subStageInput.name = 'subStage';
+            subStageInput.value = subStage;
+            form.appendChild(subStageInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', initSubStages);
+    </script>
+</body>
+</html>

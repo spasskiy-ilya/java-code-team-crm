@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${agent.fullName}">Карточка студента</title>
+    <style th:replace="~{fragments/sidebar::sidebar-styles}"></style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .main-content {
+            margin-left: 280px !important;
+            min-height: 100vh;
+            padding: 40px;
+            display: block !important;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .back-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            color: #1a1a1a;
+        }
+
+        .info-section, .history-section, .notes-section {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e5e5;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #1a1a1a;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .info-section-header .section-title {
+            margin-bottom: 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px 24px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: row;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 13px;
+            font-weight: 500;
+            min-width: 140px;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            color: #1a1a1a;
+            font-size: 14px;
+            font-weight: 400;
+            flex: 1;
+        }
+
+        .info-link {
+            color: #0088cc;
+            text-decoration: none;
+        }
+
+        .info-link:hover {
+            text-decoration: underline;
+        }
+
+        .history-item {
+            padding: 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            background: #fafafa;
+        }
+
+        .history-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .history-stage {
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .history-dates {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .module-list {
+            margin-left: 20px;
+            margin-top: 12px;
+        }
+
+        .module-item {
+            padding: 8px 12px;
+            background: #fff;
+            border-left: 3px solid #666;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        .module-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .module-name {
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .module-dates {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .notes-list {
+            margin-bottom: 30px;
+        }
+
+        .note-item {
+            padding: 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: #fafafa;
+        }
+
+        .note-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .note-date {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .note-text {
+            color: #1a1a1a;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .note-form {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            color: #1a1a1a;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #0088cc;
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
+        }
+
+        .btn-submit {
+            background: #1a1a1a;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: #333;
+        }
+
+        .empty-notes {
+            color: #999;
+            text-align: center;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .btn-edit {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+            display: inline-block;
+        }
+
+        .btn-edit:hover {
+            background: #333;
+        }
+
+        .info-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar::sidebar('education')}"></div>
+
+    <main class="main-content">
+        <a th:href="@{/education}" class="back-link">← Назад к списку</a>
+
+        <div class="page-header">
+            <h1 th:text="${agent.fullName}">Карточка студента</h1>
+        </div>
+
+        <div class="info-section">
+            <div class="info-section-header">
+                <h2 class="section-title">Информация</h2>
+                <a th:href="@{/students/{id}/edit(id=${agent.id})}" class="btn-edit">
+                    Редактировать
+                </a>
+            </div>
+            <div class="info-grid">
+                <div class="info-item" th:if="${agent.lastName}">
+                    <span class="info-label">Фамилия:</span>
+                    <span class="info-value" th:text="${agent.lastName}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.firstName}">
+                    <span class="info-label">Имя:</span>
+                    <span class="info-value" th:text="${agent.firstName}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.fatherName}">
+                    <span class="info-label">Отчество:</span>
+                    <span class="info-value" th:text="${agent.fatherName}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.login}">
+                    <span class="info-label">Логин:</span>
+                    <span class="info-value" th:text="${agent.login}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.portalLogin}">
+                    <span class="info-label">Логин на портале:</span>
+                    <span class="info-value" th:text="${agent.portalLogin}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.portalPassword}">
+                    <span class="info-label">Пароль на портале:</span>
+                    <span class="info-value" th:text="${agent.portalPassword}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.telegram}">
+                    <span class="info-label">Telegram:</span>
+                    <span class="info-value">
+                        <a th:href="'https://t.me/' + ${agent.telegram}" target="_blank" class="info-link" th:text="'@' + ${agent.telegram}"></a>
+                    </span>
+                </div>
+                <div class="info-item" th:if="${agent.email}">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value" th:text="${agent.email}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.phoneNumber}">
+                    <span class="info-label">Телефон:</span>
+                    <span class="info-value" th:text="${agent.phoneNumber}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.birthdayDate}">
+                    <span class="info-label">Дата рождения:</span>
+                    <span class="info-value" th:text="${#temporals.format(agent.birthdayDate, 'dd.MM.yy')}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.country}">
+                    <span class="info-label">Страна:</span>
+                    <span class="info-value" th:text="${agent.country}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.address}">
+                    <span class="info-label">Адрес:</span>
+                    <span class="info-value" th:text="${agent.address}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.discordLogin}">
+                    <span class="info-label">Discord:</span>
+                    <span class="info-value" th:text="${agent.discordLogin}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.registrationDate}">
+                    <span class="info-label">Дата регистрации:</span>
+                    <span class="info-value" th:text="${#temporals.format(agent.registrationDate, 'dd.MM.yy')}"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section" th:if="${agent.contractInfo != null}">
+            <div class="info-section-header">
+                <h2 class="section-title">Договор</h2>
+                <a th:href="@{/students/{id}/contract/edit(id=${agent.id})}" class="btn-edit">
+                    Редактировать
+                </a>
+            </div>
+            <div class="info-grid">
+                <div class="info-item" th:if="${agent.contractInfo.signed != null}">
+                    <span class="info-label">Подписан:</span>
+                    <span class="info-value" th:text="${agent.contractInfo.signed ? 'Да' : 'Нет'}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.contractInfo.signDate != null}">
+                    <span class="info-label">Дата подписания:</span>
+                    <span class="info-value" th:text="${#temporals.format(agent.contractInfo.signDate, 'dd.MM.yy')}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.contractInfo.reSignDate != null}">
+                    <span class="info-label">Дата переподписания:</span>
+                    <span class="info-value" th:text="${#temporals.format(agent.contractInfo.reSignDate, 'dd.MM.yy')}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.contractInfo.brokeDate != null}">
+                    <span class="info-label">Дата разрыва:</span>
+                    <span class="info-value" th:text="${#temporals.format(agent.contractInfo.brokeDate, 'dd.MM.yy')}"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section" th:if="${agent.archiveInfo != null}">
+            <div class="info-section-header">
+                <h2 class="section-title">Архивация</h2>
+                <a th:href="@{/students/{id}/archive/edit(id=${agent.id})}" class="btn-edit">
+                    Редактировать
+                </a>
+            </div>
+            <div class="info-grid">
+                <div class="info-item" th:if="${agent.archiveInfo.archiveDate != null}">
+                    <span class="info-label">Дата архивации:</span>
+                    <span class="info-value" th:text="${#temporals.format(agent.archiveInfo.archiveDate, 'dd.MM.yy')}"></span>
+                </div>
+                <div class="info-item" th:if="${agent.archiveInfo.reason != null}">
+                    <span class="info-label">Причина:</span>
+                    <span class="info-value" th:text="${agent.archiveInfo.reason}"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h2 class="section-title">История обучения</h2>
+            <div th:if="${agent.historyStages == null || agent.historyStages.isEmpty()}">
+                <p style="color: #999; text-align: center; padding: 40px;">История отсутствует</p>
+            </div>
+            <div th:each="historyStage : ${agent.historyStages}" class="history-item">
+                <div class="history-stage" th:text="${historyStage.stage != null ? T(jc.team.crm.enums.HistoryStage).valueOf(historyStage.stage).getTitle() : '-'}">STAGE</div>
+                <div class="history-dates">
+                    Начало: <span th:text="${historyStage.startDate != null ? #temporals.format(historyStage.startDate, 'dd.MM.yy') : '-'}">-</span>
+                    <span th:if="${historyStage.endDate}">
+                        | Окончание: <span th:text="${#temporals.format(historyStage.endDate, 'dd.MM.yy')}">-</span>
+                    </span>
+                    | Продолжительность: <span th:text="${T(jc.team.crm.utils.AgentUtils).calculateDuration(historyStage.startDate, historyStage.endDate)} + ' дн.'">-</span>
+                </div>
+                <div th:if="${historyStage.modules != null && !historyStage.modules.isEmpty()}" class="module-list">
+                    <div th:each="module : ${historyStage.modules}" class="module-item">
+                        <div class="module-name" th:text="${module.stageName != null ? T(jc.team.crm.utils.StageUtils).getSubStageTitle(module.stageName) : '-'}">Module</div>
+                        <div class="module-dates">
+                            Начало: <span th:text="${module.startDate != null ? #temporals.format(module.startDate, 'dd.MM.yy') : '-'}">-</span>
+                            <span th:if="${module.endDate}">
+                                | Окончание: <span th:text="${#temporals.format(module.endDate, 'dd.MM.yy')}">-</span>
+                            </span>
+                            | Продолжительность: <span th:text="${T(jc.team.crm.utils.AgentUtils).calculateDuration(module.startDate, module.endDate)} + ' дн.'">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-section">
+            <h2 class="section-title">Комментарии</h2>
+            
+            <div class="notes-list">
+                <div th:if="${agent.notes == null || agent.notes.isEmpty()}" class="empty-notes">
+                    Комментариев пока нет
+                </div>
+                <div th:each="note : ${agent.notes}" class="note-item">
+                    <div class="note-date" th:text="${note.date != null ? #temporals.format(note.date, 'dd.MM.yy') : '-'}">Дата</div>
+                    <div class="note-text" th:text="${note.note}">Текст комментария</div>
+                </div>
+            </div>
+
+            <form th:action="@{/students/{id}/notes(id=${agent.id})}" 
+                  th:object="${createNoteDto}" 
+                  method="post" 
+                  class="note-form">
+                <div class="form-group">
+                    <label class="form-label" for="note">Добавить комментарий</label>
+                    <textarea id="note" 
+                              th:field="*{note}" 
+                              class="form-textarea" 
+                              placeholder="Введите комментарий..." 
+                              required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Добавить</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/srm
+    username: srm_user
+    password: srm_pass
+
+  thymeleaf:
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    cache: false
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+
+  jpa:
+    show-sql: false
+    defer-datasource-initialization: false
+  
+  flyway:
+    enabled: true
+
+server:
+  port: 8083
