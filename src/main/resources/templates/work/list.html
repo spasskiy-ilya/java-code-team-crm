@@ -171,11 +171,13 @@
                         <th>Этап</th>
                         <th>Продолжительность</th>
                         <th>Дата выхода на проект</th>
+                        <th>Название компании</th>
+                        <th>Тип устройства</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:if="${agents.isEmpty()}">
-                        <td colspan="4" style="text-align: center; color: #999; padding: 40px;">
+                        <td colspan="6" style="text-align: center; color: #999; padding: 40px;">
                             Нет студентов на проекте
                         </td>
                     </tr>
@@ -210,6 +212,12 @@
                         </td>
                         <td>
                             <span class="duration" th:text="${agent.workStartDate != null ? #temporals.format(agent.workStartDate, 'dd.MM.yy') : '-'}">-</span>
+                        </td>
+                        <td>
+                            <span th:text="${agent.companyName != null ? agent.companyName : '-'}">-</span>
+                        </td>
+                        <td>
+                            <span th:text="${agent.deviceType != null ? agent.deviceType : '-'}">-</span>
                         </td>
                     </tr>
                 </tbody>

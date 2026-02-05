@@ -6,12 +6,15 @@ import jc.team.crm.dto.ContractDto;
 import jc.team.crm.dto.HistoryStageDto;
 import jc.team.crm.dto.ModuleDto;
 import jc.team.crm.dto.NoteDto;
+import jc.team.crm.dto.WorkHistoryDto;
+import jc.team.crm.dto.WorkPlaceDto;
 import jc.team.crm.entity.AgentEntity;
 import jc.team.crm.entity.history.AgentHistoryEntity;
 import jc.team.crm.entity.history.education.cv.CvModuleEntity;
 import jc.team.crm.entity.history.education.first.EducationFirstPartModuleEntity;
 import jc.team.crm.entity.history.education.practice.PracticeModuleEntity;
 import jc.team.crm.entity.history.education.second.EducationSecondPartModuleEntity;
+import jc.team.crm.entity.history.work.WorkPlaceEntity;
 import jc.team.crm.utils.AgentUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -43,6 +46,7 @@ public interface AgentDetailMapper {
     @Mapping(target = "registrationDate", source = "info.registrationDate")
     @Mapping(target = "contractInfo", ignore = true)
     @Mapping(target = "archiveInfo", ignore = true)
+    @Mapping(target = "workHistoryInfo", ignore = true)
     @Mapping(target = "historyStages", ignore = true)
     @Mapping(target = "notes", ignore = true)
     AgentDetailDto toAgentDetailDto(AgentEntity agent);
@@ -69,6 +73,29 @@ public interface AgentDetailMapper {
                 dto.setArchiveInfo(new ArchiveDto(
                     archive.getArchiveDate(),
                     archive.getReason()
+                ));
+            }
+            
+            if (agent.getAgentHistory().getWorkHistory() != null) {
+                var workHistory = agent.getAgentHistory().getWorkHistory();
+                List<WorkPlaceDto> workPlaces = null;
+                if (workHistory.getWorkPlaces() != null) {
+                    workPlaces = workHistory.getWorkPlaces().stream()
+                            .map(wp -> new WorkPlaceDto(
+                                    wp.getId(),
+                                    wp.getCompanyName(),
+                                    wp.getSalary(),
+                                    wp.getDeviceType(),
+                                    wp.getStartDate(),
+                                    wp.getEndDate()
+                            ))
+                            .collect(Collectors.toList());
+                }
+                dto.setWorkHistoryInfo(new WorkHistoryDto(
+                        workHistory.getId(),
+                        workHistory.getStartDate(),
+                        workHistory.getEndDate(),
+                        workPlaces
                 ));
             }
         }

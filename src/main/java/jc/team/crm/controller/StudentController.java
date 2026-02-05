@@ -1,9 +1,11 @@
 package jc.team.crm.controller;
 
 import jc.team.crm.dto.CreateNoteDto;
+import jc.team.crm.dto.CreateWorkPlaceDto;
 import jc.team.crm.dto.UpdateAgentInfoDto;
 import jc.team.crm.dto.UpdateArchiveDto;
 import jc.team.crm.dto.UpdateContractDto;
+import jc.team.crm.dto.UpdateWorkPlaceDto;
 import jc.team.crm.service.StudentNoteService;
 import jc.team.crm.service.AgentService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class StudentController {
     public String showDetail(@PathVariable Long id, Model model) {
         model.addAttribute("agent", agentService.getAgentDetail(id));
         model.addAttribute("createNoteDto", new CreateNoteDto());
+        model.addAttribute("createWorkPlaceDto", new CreateWorkPlaceDto());
 
         return "agents/detail";
     }
@@ -86,7 +89,29 @@ public class StudentController {
     public String updateArchive(@PathVariable Long id, @ModelAttribute UpdateArchiveDto dto) {
         dto.setAgentId(id);
         agentService.updateArchiveInfo(dto);
+        return "redirect:/students/" + id;
+    }
 
+    @PostMapping("/{id}/work-places")
+    public String addWorkPlace(@PathVariable Long id, @ModelAttribute CreateWorkPlaceDto dto) {
+        dto.setAgentId(id);
+        agentService.addWorkPlace(dto);
+        return "redirect:/students/" + id;
+    }
+
+    @GetMapping("/{id}/work-places/{workPlaceId}/edit")
+    public String showWorkPlaceEditForm(@PathVariable Long id, @PathVariable Long workPlaceId, Model model) {
+        var agentDetail = agentService.getAgentDetail(id);
+        model.addAttribute("agent", agentDetail);
+        model.addAttribute("updateDto", agentService.prepareUpdateWorkPlaceDto(id, workPlaceId));
+        return "agents/work-place-edit";
+    }
+
+    @PostMapping("/{id}/work-places/{workPlaceId}/edit")
+    public String updateWorkPlace(@PathVariable Long id, @PathVariable Long workPlaceId, @ModelAttribute UpdateWorkPlaceDto dto) {
+        dto.setAgentId(id);
+        dto.setWorkPlaceId(workPlaceId);
+        agentService.updateWorkPlace(dto);
         return "redirect:/students/" + id;
     }
 }

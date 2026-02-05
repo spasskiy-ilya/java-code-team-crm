@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${'Редактирование места работы: ' + agent.fullName}">Редактирование места работы</title>
+    <style th:replace="~{fragments/sidebar::sidebar-styles}"></style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .main-content {
+            margin-left: 280px !important;
+            min-height: 100vh;
+            padding: 40px;
+            display: block !important;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .back-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-link:hover {
+            color: #1a1a1a;
+        }
+
+        .edit-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e5e5e5;
+            padding: 30px;
+        }
+
+        .section-title {
+            color: #1a1a1a;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fafafa;
+            color: #1a1a1a;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0088cc;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
+        }
+
+        .form-input[type="date"] {
+            cursor: pointer;
+        }
+
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+        }
+
+        .btn-secondary {
+            background: #e5e5e5;
+            color: #1a1a1a;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/sidebar::sidebar('agents')}"></div>
+
+    <main class="main-content">
+        <a th:href="@{/students/{id}(id=${agent.id})}" class="back-link">← Назад к карточке</a>
+
+        <div class="page-header">
+            <h1 th:text="${'Редактирование места работы: ' + agent.fullName}">Редактирование места работы</h1>
+        </div>
+
+        <div class="edit-container">
+            <h2 class="section-title">Место работы</h2>
+
+            <form th:action="@{/students/{id}/work-places/{workPlaceId}/edit(id=${agent.id}, workPlaceId=${updateDto.workPlaceId})}" 
+                  th:object="${updateDto}" 
+                  method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="companyName">Название компании</label>
+                        <input type="text" 
+                               id="companyName" 
+                               th:field="*{companyName}" 
+                               class="form-input" 
+                               placeholder="Введите название компании">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="salary">Зарплата</label>
+                        <input type="number" 
+                               id="salary" 
+                               th:field="*{salary}" 
+                               class="form-input" 
+                               step="0.01"
+                               placeholder="Введите зарплату">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="deviceType">Тип устройства</label>
+                        <input type="text" 
+                               id="deviceType" 
+                               th:field="*{deviceType}" 
+                               class="form-input" 
+                               placeholder="Введите тип устройства">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="startDate">Дата начала</label>
+                        <input type="date" 
+                               id="startDate" 
+                               th:field="*{startDate}" 
+                               class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="endDate">Дата окончания</label>
+                        <input type="date" 
+                               id="endDate" 
+                               th:field="*{endDate}" 
+                               class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a th:href="@{/students/{id}(id=${agent.id})}" class="btn btn-secondary">Отмена</a>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

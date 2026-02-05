@@ -5,20 +5,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkAgentDto {
+public class UpdateWorkPlaceDto {
     private Long agentId;
-    private String fullName;
-    private String login;
-    private String telegram;
-    private String currentStage;
-    private Long stageDuration;
-    private LocalDate workStartDate;
+    private Long workPlaceId;
     private String companyName;
+    private BigDecimal salary;
     private String deviceType;
+    private LocalDate startDate;
+    private LocalDate endDate;
 }

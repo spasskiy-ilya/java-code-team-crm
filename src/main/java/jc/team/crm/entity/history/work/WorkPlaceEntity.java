@@ -1,7 +1,6 @@
 package jc.team.crm.entity.history.work;
 
 import jakarta.persistence.*;
-import jc.team.crm.entity.history.AgentHistoryEntity;
 import jc.team.crm.entity.abs.BaseDatedEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,26 +8,28 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "work_history")
+@Table(name = "work_places")
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkHistoryEntity extends BaseDatedEntity {
+public class WorkPlaceEntity extends BaseDatedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "agent_history_id")
-    private AgentHistoryEntity agentHistory;
+    @ManyToOne
+    @JoinColumn(name = "work_history_id")
+    private WorkHistoryEntity workHistory;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "workHistory")
-    private List<WorkPlaceEntity> workPlaces;
+    private String companyName;
+
+    private BigDecimal salary;
+
+    private String deviceType;
 }
-

@@ -275,6 +275,48 @@
         .section-title {
             margin-bottom: 0;
         }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fafafa;
+            color: #1a1a1a;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0088cc;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.1);
+        }
+
+        .form-input[type="date"] {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -306,10 +348,6 @@
                 <div class="info-item" th:if="${agent.fatherName}">
                     <span class="info-label">Отчество:</span>
                     <span class="info-value" th:text="${agent.fatherName}"></span>
-                </div>
-                <div class="info-item" th:if="${agent.login}">
-                    <span class="info-label">Логин:</span>
-                    <span class="info-value" th:text="${agent.login}"></span>
                 </div>
                 <div class="info-item" th:if="${agent.portalLogin}">
                     <span class="info-label">Логин на портале:</span>
@@ -400,6 +438,91 @@
                     <span class="info-value" th:text="${agent.archiveInfo.reason}"></span>
                 </div>
             </div>
+        </div>
+
+        <div class="info-section" th:if="${agent.workHistoryInfo != null}">
+            <div class="info-section-header">
+                <h2 class="section-title">Места работы</h2>
+            </div>
+            <div th:if="${agent.workHistoryInfo.workPlaces == null || agent.workHistoryInfo.workPlaces.isEmpty()}" class="empty-notes">
+                Места работы отсутствуют
+            </div>
+            <div th:each="workPlace : ${agent.workHistoryInfo.workPlaces}" class="history-item">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div class="history-stage" th:text="${workPlace.companyName}">Компания</div>
+                    <a th:href="@{/students/{id}/work-places/{workPlaceId}/edit(id=${agent.id}, workPlaceId=${workPlace.id})}" class="btn-edit" style="padding: 6px 12px; font-size: 12px;">
+                        Редактировать
+                    </a>
+                </div>
+                <div class="info-grid" style="margin-top: 12px;">
+                    <div class="info-item" th:if="${workPlace.salary != null}">
+                        <span class="info-label">Зарплата:</span>
+                        <span class="info-value" th:text="${#numbers.formatDecimal(workPlace.salary, 0, 2, 'POINT')} + ' руб.'"></span>
+                    </div>
+                    <div class="info-item" th:if="${workPlace.deviceType != null}">
+                        <span class="info-label">Тип устройства:</span>
+                        <span class="info-value" th:text="${workPlace.deviceType}"></span>
+                    </div>
+                    <div class="info-item" th:if="${workPlace.startDate != null}">
+                        <span class="info-label">Дата начала:</span>
+                        <span class="info-value" th:text="${#temporals.format(workPlace.startDate, 'dd.MM.yy')}"></span>
+                    </div>
+                    <div class="info-item" th:if="${workPlace.endDate != null}">
+                        <span class="info-label">Дата окончания:</span>
+                        <span class="info-value" th:text="${#temporals.format(workPlace.endDate, 'dd.MM.yy')}"></span>
+                    </div>
+                </div>
+            </div>
+            <form th:action="@{/students/{id}/work-places(id=${agent.id})}" 
+                  th:object="${createWorkPlaceDto}" 
+                  method="post" 
+                  style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e5e5;">
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #1a1a1a;">Добавить место работы</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="companyName">Название компании</label>
+                        <input type="text" 
+                               id="companyName" 
+                               th:field="*{companyName}" 
+                               class="form-input" 
+                               placeholder="Введите название компании">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="salary">Зарплата</label>
+                        <input type="number" 
+                               id="salary" 
+                               th:field="*{salary}" 
+                               class="form-input" 
+                               step="0.01"
+                               placeholder="Введите зарплату">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="deviceType">Тип устройства</label>
+                        <input type="text" 
+                               id="deviceType" 
+                               th:field="*{deviceType}" 
+                               class="form-input" 
+                               placeholder="Введите тип устройства">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="startDate">Дата начала</label>
+                        <input type="date" 
+                               id="startDate" 
+                               th:field="*{startDate}" 
+                               class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="endDate">Дата окончания</label>
+                        <input type="date" 
+                               id="endDate" 
+                               th:field="*{endDate}" 
+                               class="form-input">
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn-submit">Добавить место работы</button>
+                </div>
+            </form>
         </div>
 
         <div class="history-section">

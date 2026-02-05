@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class AgentDetailDto {
     private Long id;
-    private String login;
     private String fullName;
     private String firstName;
     private String lastName;
@@ -32,6 +31,7 @@ public class AgentDetailDto {
     
     private ContractDto contractInfo;
     private ArchiveDto archiveInfo;
+    private WorkHistoryDto workHistoryInfo;
     private List<HistoryStageDto> historyStages;
     private List<NoteDto> notes;
 }

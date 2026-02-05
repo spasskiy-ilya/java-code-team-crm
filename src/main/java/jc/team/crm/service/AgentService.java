@@ -1,10 +1,13 @@
 package jc.team.crm.service;
 
 import jc.team.crm.dto.AgentDetailDto;
+import jc.team.crm.dto.CreateWorkPlaceDto;
 import jc.team.crm.dto.UpdateAgentInfoDto;
 import jc.team.crm.dto.UpdateArchiveDto;
 import jc.team.crm.dto.UpdateContractDto;
+import jc.team.crm.dto.UpdateWorkPlaceDto;
 import jc.team.crm.entity.AgentEntity;
+import jc.team.crm.entity.history.work.WorkPlaceEntity;
 import jc.team.crm.mapper.AgentDetailMapper;
 import jc.team.crm.repository.AgentRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,9 +45,13 @@ public class AgentService {
             agent.getInfo().setPortalLogin(dto.getPortalLogin());
             agent.getInfo().setPortalPassword(dto.getPortalPassword());
             agent.getInfo().setDiscordLogin(dto.getDiscordLogin());
+            
+            if (dto.getPortalLogin() != null) {
+                agent.setLogin(dto.getPortalLogin());
+            }
         }
 
-        agentRepository.save(agent);
+        agentRepository.saveAndFlush(agent);
     }
 
     @Transactional
@@ -140,6 +147,87 @@ public class AgentService {
         if (agentDetail.getArchiveInfo() != null) {
             dto.setArchiveDate(agentDetail.getArchiveInfo().getArchiveDate());
             dto.setReason(agentDetail.getArchiveInfo().getReason());
+        }
+        return dto;
+    }
+
+    @Transactional
+    public void addWorkPlace(CreateWorkPlaceDto dto) {
+        AgentEntity agent = agentRepository.findById(dto.getAgentId())
+                .orElseThrow(() -> new IllegalArgumentException("Агент не найден"));
+
+        if (agent.getAgentHistory() == null) {
+            throw new IllegalArgumentException("История агента не найдена");
+        }
+
+        var workHistory = agent.getAgentHistory().getWorkHistory();
+        if (workHistory == null) {
+            throw new IllegalArgumentException("История работы не найдена");
+        }
+
+        WorkPlaceEntity workPlace = WorkPlaceEntity.builder()
+                .workHistory(workHistory)
+                .companyName(dto.getCompanyName())
+                .salary(dto.getSalary())
+                .deviceType(dto.getDeviceType())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
+                .build();
+
+        if (workHistory.getWorkPlaces() == null) {
+            workHistory.setWorkPlaces(new java.util.ArrayList<>());
+        }
+        workHistory.getWorkPlaces().add(workPlace);
+        agentRepository.save(agent);
+    }
+
+    @Transactional
+    public void updateWorkPlace(UpdateWorkPlaceDto dto) {
+        AgentEntity agent = agentRepository.findById(dto.getAgentId())
+                .orElseThrow(() -> new IllegalArgumentException("Агент не найден"));
+
+        if (agent.getAgentHistory() == null) {
+            throw new IllegalArgumentException("История агента не найдена");
+        }
+
+        var workHistory = agent.getAgentHistory().getWorkHistory();
+        if (workHistory == null || workHistory.getWorkPlaces() == null) {
+            throw new IllegalArgumentException("Место работы не найдено");
+        }
+
+        WorkPlaceEntity workPlace = workHistory.getWorkPlaces().stream()
+                .filter(wp -> wp.getId().equals(dto.getWorkPlaceId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Место работы не найдено"));
+
+        workPlace.setCompanyName(dto.getCompanyName());
+        workPlace.setSalary(dto.getSalary());
+        workPlace.setDeviceType(dto.getDeviceType());
+        workPlace.setStartDate(dto.getStartDate());
+        workPlace.setEndDate(dto.getEndDate());
+
+        agentRepository.save(agent);
+    }
+
+    public UpdateWorkPlaceDto prepareUpdateWorkPlaceDto(Long agentId, Long workPlaceId) {
+        AgentDetailDto agentDetail = getAgentDetail(agentId);
+        UpdateWorkPlaceDto dto = new UpdateWorkPlaceDto();
+        dto.setAgentId(agentId);
+        dto.setWorkPlaceId(workPlaceId);
+        
+        if (agentDetail.getWorkHistoryInfo() != null && agentDetail.getWorkHistoryInfo().getWorkPlaces() != null) {
+            var workPlace = agentDetail.getWorkHistoryInfo().getWorkPlaces().stream()
+                    .filter(wp -> wp.getId().equals(workPlaceId))
+                    .findFirst()
+                    .orElse(null);
+            
+            if (workPlace != null) {
+                dto.setCompanyName(workPlace.getCompanyName());
+                dto.setSalary(workPlace.getSalary());
+                dto.setDeviceType(workPlace.getDeviceType());
+                dto.setStartDate(workPlace.getStartDate());
+                dto.setEndDate(workPlace.getEndDate());
+            }
         }
         return dto;
     }
