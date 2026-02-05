@@ -177,80 +177,14 @@
     <main class="main-content">
         <div class="page-header">
             <h1>Список студентов</h1>
-            <p class="subtitle">На обучение</p>
+            <p class="subtitle">На обучение - <span th:text="${pageData.totalCount}">0</span> чел.</p>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Контакты</th>
-                        <th>Дата регистрации</th>
-                        <th>Дата договора</th>
-                        <th>Этап</th>
-                        <th>Продолжительность</th>
-                        <th>Тема</th>
-                        <th>Продолжительность</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:if="${agents.isEmpty()}">
-                        <td colspan="7" style="text-align: center; color: #999; padding: 40px;">
-                            Нет активных студентов
-                        </td>
-                    </tr>
-                    <tr th:each="agent : ${agents}">
-                        <td>
-                            <div class="info-cell">
-                                <a th:href="@{/students/{id}(id=${agent.agentId})}" class="info-name-link" th:text="${agent.fullName}">ФИО</a>
-                                <span class="info-details" th:text="${agent.login}">Логин</span>
-                                <span class="info-details" th:if="${agent.telegram}">
-                                    <a th:href="'https://t.me/' + ${agent.telegram}" 
-                                       target="_blank" 
-                                       class="telegram-link"
-                                       th:text="'@' + ${agent.telegram}">@telegram</a>
-                                </span>
-                                <span class="info-details" th:unless="${agent.telegram}" th:text="'-'"></span>
-                            </div>
-                        </td>
-                        <td>
-                            <span th:text="${agent.registrationDate != null ? #temporals.format(agent.registrationDate, 'dd.MM.yy') : '-'}">-</span>
-                        </td>
-                        <td>
-                            <span th:text="${agent.contractSignDate != null ? #temporals.format(agent.contractSignDate, 'dd.MM.yy') : '-'}">-</span>
-                        </td>
-                        <td>
-                            <select th:id="'stage-' + ${agent.agentId}" 
-                                    th:data-agent-id="${agent.agentId}"
-                                    th:data-sub-stage-id="'subStage-' + ${agent.agentId}"
-                                    onchange="updateStatus(this)">
-                                <option value="">-</option>
-                                <option th:each="stage : ${stages}" 
-                                        th:value="${stage.name()}" 
-                                        th:text="${stage.getTitle()}"
-                                        th:selected="${agent.currentStage == stage.name()}"></option>
-                            </select>
-                        </td>
-                        <td>
-                            <span class="duration" th:text="${agent.stageDuration} + ' дн.'">0 дн.</span>
-                        </td>
-                        <td>
-                            <select th:id="'subStage-' + ${agent.agentId}" 
-                                    th:data-agent-id="${agent.agentId}"
-                                    th:data-stage-id="'stage-' + ${agent.agentId}"
-                                    th:data-current-sub-stage="${agent.currentSubStage ?: ''}"
-                                    onchange="updateStatus(this)"
-                                    disabled>
-                                <option value="">-</option>
-                            </select>
-                        </td>
-                        <td>
-                            <span class="duration" th:text="${agent.subStageDuration} + ' дн.'">0 дн.</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <div th:replace="~{fragments/agent-table::agent-table-block('Первая часть обучения', ${pageData.firstPartAgents}, ${pageData.firstPartCount}, ${stages})}"></div>
+
+        <div th:replace="~{fragments/agent-table::agent-table-block('Подписание', ${pageData.signAgents}, ${pageData.signCount}, ${stages})}"></div>
+
+        <div th:replace="~{fragments/agent-table::agent-table-block('Вторая часть обучения', ${pageData.secondPartAgents}, ${pageData.secondPartCount}, ${stages})}"></div>
     </main>
 
     <script th:inline="javascript">
@@ -288,6 +222,7 @@
             'CV': 'Резюме',
             'LEGEND': 'Легенда',
             // PRACTICE
+            'STREAM': 'Стримы',
             'SQL': 'SQL',
             'REVIEW': 'Code Review',
             // SEARCH
@@ -344,7 +279,7 @@
                     subStagesMap[selectedStage].forEach(subStage => {
                         const option = document.createElement('option');
                         option.value = subStage;
-                        option.textContent = subStage;
+                        option.textContent = subStageTitles[subStage] || subStage;
                         subStageSelect.appendChild(option);
                     });
                 } else {

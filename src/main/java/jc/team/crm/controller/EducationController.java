@@ -22,7 +22,7 @@ public class EducationController {
 
     @GetMapping
     public String showPage(Model model) {
-        model.addAttribute("agents", educationPageService.getActiveAgents());
+        model.addAttribute("pageData", educationPageService.getEducationPageData());
         model.addAttribute("stages", HistoryStage.values());
 
         return "agents/list";

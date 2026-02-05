@@ -1,6 +1,7 @@
 package jc.team.crm.service;
 
 import jc.team.crm.dto.AgentListDto;
+import jc.team.crm.dto.EducationPageDto;
 import jc.team.crm.enums.HistoryStage;
 import jc.team.crm.mapper.AgentMapper;
 import jc.team.crm.repository.AgentRepository;
@@ -33,5 +34,34 @@ public class EducationPageService {
                         .comparing((AgentListDto dto) -> StageUtils.getStageOrder(dto.getCurrentStage()))
                         .thenComparing((AgentListDto dto) -> StageUtils.getSubStageOrder(dto.getCurrentSubStage(), dto.getCurrentStage())))
                 .collect(Collectors.toList());
+    }
+
+    public EducationPageDto getEducationPageData() {
+        List<AgentListDto> allAgents = getActiveAgents();
+        
+        List<AgentListDto> firstPartAgents = allAgents.stream()
+                .filter(agent -> HistoryStage.FIRST_PART_EDUCATION.name().equals(agent.getCurrentStage()))
+                .collect(Collectors.toList());
+        
+        List<AgentListDto> signAgents = allAgents.stream()
+                .filter(agent -> HistoryStage.SIGN.name().equals(agent.getCurrentStage()))
+                .collect(Collectors.toList());
+        
+        List<AgentListDto> secondPartAgents = allAgents.stream()
+                .filter(agent -> HistoryStage.SECOND_PART_EDUCATION.name().equals(agent.getCurrentStage())
+                        || HistoryStage.CV.name().equals(agent.getCurrentStage())
+                        || HistoryStage.PRACTICE.name().equals(agent.getCurrentStage()))
+                .collect(Collectors.toList());
+        
+        return new EducationPageDto(
+                allAgents,
+                allAgents.size(),
+                firstPartAgents,
+                firstPartAgents.size(),
+                signAgents,
+                signAgents.size(),
+                secondPartAgents,
+                secondPartAgents.size()
+        );
     }
 }
